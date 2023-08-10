@@ -15,8 +15,8 @@ def get_product_list(last_id, client_id, seller_token):
     """
     Retrieve a list of products from the Ozon seller's store.
 
-    This function fetches a list of products based on the given `last_id`, using the provided `client_id` and `seller_token`
-    to authenticate against the Ozon seller API.
+    This function fetches a list of products based on the given `last_id`, using the provided
+    `client_id` and `seller_token` to authenticate against the Ozon seller API.
 
     Args:
         last_id (int): The last product ID to begin retrieval from.
@@ -26,12 +26,12 @@ def get_product_list(last_id, client_id, seller_token):
     Returns:
         dict: The result containing the products list and other related data.
 
+    Raises:
+        HTTPError: Raises an exception if the request to the API fails.
+
     Examples:
         >>> get_product_list(0, "YOUR_CLIENT_ID", "YOUR_SELLER_TOKEN")
         {"items": [{"product_id": 123, "name": "Watch", ...}], ...}
-
-    Errors:
-        HTTPError: Raises an exception if the request to the API fails.
     """
     url = "https://api-seller.ozon.ru/v2/product/list"
     headers = {
@@ -62,13 +62,13 @@ def get_offer_ids(client_id, seller_token):
     Returns:
         List[str]: A list of strings, each representing an offer ID.
 
+    Raises:
+        Exception: Invalid client_id or seller_token, or a server-side error may result in retrieval failure.
+
     Examples:
         # Assuming an initialized server with available offer IDs.
         >>> get_offer_ids("client_123", "token_456")
         ["123", "456", "789", ...]
-
-    Errors:
-        Invalid client_id or seller_token, or a server-side error may result in retrieval failure.
     """
     last_id = ""
     product_list = []
@@ -97,12 +97,12 @@ def update_price(prices: list, client_id, seller_token):
     Returns:
         None: This function returns nothing, but it updates the prices on the server side.
 
+    Raises:
+        Exception: Invalid client_id or seller_token, or a server-side error may result in update failure.
+
     Examples:
         >>> update_price([{"offer_id": "123", "price": "5990"}], "client_123", "token_456")
         # No return value, but the price for offer_id "123" has been updated to "5990" on the server.
-
-    Errors:
-        Invalid client_id or seller_token, or a server-side error may result in update failure.
     """
     url = "https://api-seller.ozon.ru/v1/product/import/prices"
     headers = {
@@ -127,12 +127,12 @@ def update_stocks(stocks: list, client_id, seller_token):
     Returns:
         None: This function returns nothing, but it updates the stocks on the server side.
 
+    Raises:
+        Exception: Invalid client_id or seller_token, or a server-side error may result in update failure.
+
     Examples:
         >>> update_stocks([{"offer_id": "123", "stock": 5}], "client_123", "token_456")
         # No return value, but the stock for offer_id "123" has been updated to 5 on the server.
-
-    Errors:
-        Invalid client_id or seller_token, or a server-side error may result in update failure.
     """
     url = "https://api-seller.ozon.ru/v1/product/import/stocks"
     headers = {
@@ -152,13 +152,13 @@ def download_stock():
     Returns:
         List[Dict[str, Any]]: A list of dictionaries, each representing a watch remnant.
 
+    Raises:
+        Exception: Server connection issues or unavailability may result in download errors.
+
     Examples:
         # Assuming an initialized server with available data.
         >>> download_stock()
         [{"Код": "123", "Количество": "5", ...}, ...]
-
-    Errors:
-        Server connection issues or unavailability may result in download errors.
     """
     # Скачать остатки с сайта
     casio_url = "https://timeworld.ru/upload/files/ostatki.zip"
@@ -190,12 +190,13 @@ def create_stocks(watch_remnants, offer_ids):
     Returns:
         List[Dict[str, Union[str, int]]]: A list of dictionaries, each representing a stock entry.
 
+    Raises:
+        ValueError: Unexpected data format may yield incorrect stock entries.
+
     Examples:
         >>> create_stocks([{"Код": "123", "Количество": "5"}], ["123"])
         [{"offer_id": "123", "stock": 5}]
 
-    Errors:
-        Unexpected data format may yield incorrect stock entries.
         >>> create_stocks([{"WrongKey": "123"}], ["123"])
         [{"offer_id": "123", "stock": 0}]
     """
@@ -229,12 +230,12 @@ def create_prices(watch_remnants, offer_ids):
     Returns:
         List[Dict[str, Any]]: A list of dictionaries, each representing a price entry.
 
+    Raises:
+        ValueError: Unexpected data format may yield incorrect price entries.
+
     Examples:
         >>> create_prices([{"Код": "123", "Цена": "5'990.00 руб."}], ["123"])
         [{"auto_action_enabled": "UNKNOWN", "currency_code": "RUB", "offer_id": "123", "old_price": "0", "price": "5990"}]
-
-    Errors:
-        Unexpected data format may yield incorrect price entries.
     """
     prices = []
     for watch in watch_remnants:
@@ -263,12 +264,13 @@ def price_conversion(price: str) -> str:
     Returns:
         str: The price in numerical format, represented as a string.
 
+    Raises:
+        ValueError: Incorrect input string format may lead to unpredictable results.
+
     Examples:
         >>> price_conversion("5'990.00 руб.")
         '5990'
 
-    Errors:
-        Incorrect input string format may lead to unpredictable results.
         >>> price_conversion("Some random text")
         'Some'
     """
@@ -286,12 +288,13 @@ def divide(lst: list, n: int):
     Returns:
         Generator[List[Any], None, None]: A generator yielding lists with a maximum size of 'n'.
 
+    Raises:
+        ValueError: If 'n' is negative or zero.
+
     Examples:
         >>> list(divide([1, 2, 3, 4], 2))
         [[1, 2], [3, 4]]
 
-    Errors:
-        Negative or zero 'n' will raise a ValueError.
         >>> list(divide([1, 2, 3, 4], -1))
         ValueError: ...
     """
