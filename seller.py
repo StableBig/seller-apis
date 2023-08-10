@@ -131,7 +131,27 @@ def create_prices(watch_remnants, offer_ids):
 
 
 def price_conversion(price: str) -> str:
-    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990"""
+    """
+    Converts a price string into a numerical format.
+
+    This function takes a string in the format "5'990.00 руб." and transforms it into "5990",
+    removing all non-digit characters and the dot with subsequent numbers.
+
+    Args:
+        price (str): A string representing the product's price.
+
+    Returns:
+        str: The price in numerical format, represented as a string.
+
+    Examples:
+        >>> price_conversion("5'990.00 руб.")
+        '5990'
+
+    Errors:
+        Incorrect input string format may lead to unpredictable results.
+        >>> price_conversion("Some random text")
+        'Some'
+    """
     return re.sub("[^0-9]", "", price.split(".")[0])
 
 
