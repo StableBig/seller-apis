@@ -11,6 +11,32 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """
+    Retrieves a list of products from Yandex.Market for a specific advertising campaign.
+
+    Args:
+        page (str): The current page token for pagination.
+        campaign_id (str): The identifier of the advertising campaign.
+        access_token (str): The access token for Yandex.Market API.
+
+    Returns:
+        dict: List of products and pagination information.
+
+    Raises:
+        requests.exceptions.RequestException: Raised when there's an issue with the request.
+
+    Examples:
+        >>> get_product_list("", "123456", "your_access_token")
+        {
+            'offerMappingEntries': [...],
+            'paging': {...}
+        }
+
+        >>> get_product_list("invalid_page", "123456", "invalid_token")
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.RequestException
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -30,6 +56,32 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    """
+    Updates stock availability information in Yandex.Market.
+
+    Args:
+        stocks (list): List with stock availability information.
+        campaign_id (str): The identifier of the advertising campaign.
+        access_token (str): The access token for Yandex.Market API.
+
+    Returns:
+        dict: API response about the update status.
+
+    Raises:
+        requests.exceptions.RequestException: Raised when there's an issue with updating stocks in the database.
+
+    Examples:
+        >>> update_stocks([...], "123456", "your_access_token")
+        {
+            'result': 'success',
+            ...
+        }
+
+        >>> update_stocks([], "123456", "invalid_token")
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.RequestException
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -46,6 +98,32 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """
+    Updates product prices in Yandex.Market.
+
+    Args:
+        prices (list): List with product price information.
+        campaign_id (str): The identifier of the advertising campaign.
+        access_token (str): The access token for Yandex.Market API.
+
+    Returns:
+        dict: API response about the price update status.
+
+    Raises:
+        requests.exceptions.RequestException: Raised when there's an issue with updating the product prices.
+
+    Examples:
+        >>> update_price([...], "123456", "your_access_token")
+        {
+            'result': 'success',
+            ...
+        }
+
+        >>> update_price([], "123456", "invalid_token")
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.RequestException
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +140,28 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """
+    Retrieves product SKUs (Stock Keeping Units) or article numbers from Yandex.Market for an advertising campaign.
+
+    Args:
+        campaign_id (str): The identifier of the advertising campaign.
+        market_token (str): The access token for Yandex.Market API.
+
+    Returns:
+        list: A list of SKUs (article numbers) for products.
+
+    Raises:
+        requests.exceptions.RequestException: Raised when there's an issue with the request, e.g., due to an invalid token.
+
+    Examples:
+        >>> get_offer_ids("123456", "your_market_token")
+        ['SKU123', 'SKU124', ...]
+
+        >>> get_offer_ids("123456", "invalid_token")
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.RequestException
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +177,24 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """
+    Constructs a list of stock availability based on the provided product remnants and existing offer IDs.
+
+    Args:
+        watch_remnants (list): List of product remnants from the shop's internal system.
+        offer_ids (list): List of product offer IDs (SKUs) from Yandex.Market.
+        warehouse_id (str): The identifier of the warehouse where products are stored.
+
+    Returns:
+        list: A list of stock availability information for each product.
+
+    Examples:
+        >>> create_stocks([{'Код': 'SKU123', 'Количество': '5'}, ...], ['SKU123'], "WH001")
+        [{'sku': 'SKU123', 'warehouseId': 'WH001', 'items': [{'count': 5, ...}]}, ...]
+
+        >>> create_stocks([], [], "WH001")
+        []
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -123,6 +240,23 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """
+    Constructs a list of product prices based on the provided product remnants and existing offer IDs.
+
+    Args:
+        watch_remnants (list): List of product remnants from the shop's internal system.
+        offer_ids (list): List of product offer IDs (SKUs) from Yandex.Market.
+
+    Returns:
+        list: A list of product price information for each product.
+
+    Examples:
+        >>> create_prices([{'Код': 'SKU123', 'Цена': '1000'}, ...], ['SKU123'])
+        [{'id': 'SKU123', 'price': {'value': 1000, ...}}, ...]
+
+        >>> create_prices([], [])
+        []
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -143,6 +277,9 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+    """
+    Asynchronously uploads product prices to Yandex.Market for a specific advertising campaign.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -151,6 +288,9 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
 
 async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+    """
+    Asynchronously uploads product stock counts to Yandex.Market for a specific advertising campaign and warehouse.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
