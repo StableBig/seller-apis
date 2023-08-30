@@ -19,7 +19,7 @@ def get_product_list(last_id, client_id, seller_token):
     `client_id` and `seller_token` to authenticate against the Ozon seller API.
 
     Args:
-        last_id (int): The last product ID to begin retrieval from.
+        last_id (str): The ID of the last product from which to begin retrieval.
         client_id (str): The client ID for API access.
         seller_token (str): The API token for the seller's store.
 
@@ -30,7 +30,7 @@ def get_product_list(last_id, client_id, seller_token):
         HTTPError: Raises an exception if the request to the API fails.
 
     Examples:
-        >>> get_product_list(0, "YOUR_CLIENT_ID", "YOUR_SELLER_TOKEN")
+        >>> get_product_list("012345", "YOUR_CLIENT_ID", "YOUR_SELLER_TOKEN")
         {"items": [{"product_id": 123, "name": "Watch", ...}], ...}
     """
     url = "https://api-seller.ozon.ru/v2/product/list"
